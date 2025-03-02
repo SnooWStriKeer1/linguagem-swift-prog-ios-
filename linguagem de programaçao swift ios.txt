@@ -1,0 +1,63 @@
+import Foundation
+
+// Enum para tipos de transações
+enum TipoTransacao {
+    case deposito
+    case saque
+}
+
+// Struct para representar transações
+struct Transacao {
+    let tipo: TipoTransacao
+    let valor: Double
+}
+
+// Classe para representar uma conta bancária
+class ContaBancaria {
+    var numero: String
+    var saldo: Double = 0.0
+    var transacoes: [Transacao] = []
+    
+    init(numero: String) {
+        self.numero = numero
+    }
+    
+    func depositar(valor: Double) {
+        saldo += valor
+        let transacao = Transacao(tipo: .deposito, valor: valor)
+        transacoes.append(transacao)
+    }
+    
+    func sacar(valor: Double) {
+        if valor <= saldo {
+            saldo -= valor
+            let transacao = Transacao(tipo: .saque, valor: valor)
+            transacoes.append(transacao)
+        } else {
+            print("Saldo insuficiente!")
+        }
+    }
+    
+    func exibirSaldo() {
+        print("Saldo da conta \(numero): R$\(saldo)")
+    }
+}
+
+// Função para simular transações em background
+func realizarTransacoesEmBackground(conta: ContaBancaria) {
+    DispatchQueue.global().async {
+        conta.depositar(valor: 500)
+        conta.sacar(valor: 200)
+        DispatchQueue.main.async {
+            conta.exibirSaldo()
+        }
+    }
+}
+
+// Exemplo de uso
+let conta = ContaBancaria(numero: "12345-6")
+conta.depositar(valor: 1000)
+conta.sacar(valor: 300)
+conta.exibirSaldo()
+
+realizarTransacoesEmBackground(conta: conta)
